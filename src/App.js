@@ -3,6 +3,8 @@ import { useEffect, useState } from 'react';
 
 import './App.css';
 
+import { Transactions } from "./Transactions";
+
 // Refer to the README doc for more information about using API
 // keys in client-side code. You should never do this in production
 // level code.
@@ -21,16 +23,33 @@ const alchemy = new Alchemy(settings);
 
 function App() {
   const [blockNumber, setBlockNumber] = useState();
+  const [time, setTime] = useState();
+  const [transactions, setTransactions] = useState();
 
   useEffect(() => {
     async function getBlockNumber() {
       setBlockNumber(await alchemy.core.getBlockNumber());
-    }
+    } getBlockNumber();
+  }, []);
 
-    getBlockNumber();
-  });
+  useEffect(() => {
+    async function getTransactions() {
+      const block = await alchemy.core.getBlockWithTransactions(blockNumber);
+      setTime(block.timestamp);
+      setTransactions(block.transactions);
+    } getTransactions();
+  }, [blockNumber]);
 
-  return <div className="App">Block Number: {blockNumber}</div>;
+
+  return (
+    <div className="App">
+      <h1>Latest Block Number: {blockNumber}</h1>
+      <h2>As Of: {new Date(time * 1_000).toLocaleString()}</h2>
+      <h3>#Transactions: {transactions && transactions.length}</h3>
+      <hr />
+      <Transactions transactions = {transactions}/>
+    </div>
+  );
 }
 
 export default App;
